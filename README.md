@@ -1,5 +1,7 @@
 # dqa - the Dyalog QA Framework
 
+This is an experimental framework used by Dyalog to write tests for the APL interpreter.
+
 See functions in demos folder for examples of how to use the MATCH function.
 
 ## dqa.Run
