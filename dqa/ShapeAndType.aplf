@@ -1,0 +1,5 @@
+ r←ShapeAndType val
+⍝ Report shape and type of a value
+
+ r←(⍕⍴val),(0=⍴⍴val)/'⍬'
+ r,←'⍴[⎕DR=',(⍕181⌶val),']'

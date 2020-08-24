@@ -1,0 +1,13 @@
+ files←Cleanup folder
+
+ :If 2=⎕NC'QALOGTN'
+ :AndIf 0≠QALOGTN
+     ⎕FUNTIE QALOGTN∩⎕FNUMS
+ :EndIf
+
+ QALOGTN←0
+
+ :If 0=≢folder ⋄ folder←739⌶0 ⋄ :EndIf ⍝ System Temp folder by default
+
+ files←(⊃⎕NINFO⍠1)folder,'/qa-??????-???.dqa'
+ ⎕NDELETE files

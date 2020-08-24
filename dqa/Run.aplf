@@ -1,0 +1,32 @@
+ (OK logfile)←{filter}Run args;ns;fns;folder;seed;fn;rarg;OK
+⍝ Run all tests in a namespace
+⍝ args: namespace, [randomseed, [folder-for-log-file]]
+
+ :If 0=⎕NC'filter' ⋄ filter←'Test.*' ⋄ :EndIf
+ (ns seed folder)←3↑args,(≢args←,⊆args)↓# 0 ''
+
+ 'Right argument must be namespace [seed] [log-folder]' ⎕SIGNAL (9≠⎕NC 'ns')/11
+ fns←(filter ⎕S'%')ns.⎕NL ¯3
+
+ rarg←⍬
+
+ InitRandom seed
+ InitLogFile folder
+
+ OK←1
+ :For fn :In fns
+     ns.⎕PATH←⍕⎕THIS
+     (ns⍎fn)rarg
+ :EndFor
+
+ :If 0≠QALOGTN
+     logfile←⎕FNAMES[⎕FNUMS⍳QALOGTN;]
+     :If 1 2≡2↑⎕FSIZE QALOGTN
+         logfile ⎕FERASE QALOGTN ⍝ Erase log file if nothing logged
+         logfile←''
+     :Else
+         ⎕FUNTIE QALOGTN
+     :EndIf
+ :Else
+     logfile←''
+ :EndIf

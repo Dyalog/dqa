@@ -1,0 +1,12 @@
+ ok←TestDemo dummy;y;data;rand0;⎕IO
+⍝ Demonstrate qa check function
+
+ data←100⍴0.1
+ (1⊥data)MATCH+/data
+
+ rand0←RandomArray 0 645 100
+ (-1⊥rand0)MATCH+/rand0
+
+ ⎕IO←0
+ y←2 25⍴⍳50
+ (⍳4) MATCH y

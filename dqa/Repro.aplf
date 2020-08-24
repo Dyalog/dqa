@@ -1,0 +1,4 @@
+ ok←{exec}Repro args
+ :If 0=⎕NC'exec' ⋄ exec←1 ⋄ :EndIf ⍝ Set exec←2 to STOP
+
+ ok←exec Report args

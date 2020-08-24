@@ -1,0 +1,6 @@
+ tn←Open file;date;id
+ :If 2=≢tn←file ⍝ date and qa id
+     (date id)←file
+     date←100⊥{⍵+(⍵=0)×100|3↑⎕TS}100 100 100⊤date ⍝ Fill in year/month/day if left out
+     tn←(QALOGFOLDER,'/qa-',(,'ZI6,<->,ZI3'⎕FMT⍉⍪date id),'.dqa')⎕FSTIE 0
+ :EndIf

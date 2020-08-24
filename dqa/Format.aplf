@@ -1,0 +1,44 @@
+ {ok}←{exec}Format ns;var;val;execns;n;z;padout
+⍝ Report data recorded for a failed test
+
+ ok←0
+ :If 0=⎕NC'exec' ⋄ exec←0 ⋄ :EndIf
+
+ padout←{⎕←(¯10↑⍺),'   ',⍵}
+ :If exec=0
+     ' ' padout ns.x1
+     '≢' padout ns.x2
+
+     :If 0≠⍴ns.rand
+         ':' padout¨ns.rand
+     :EndIf
+
+     :If 0≠⍴ns.syms
+         ':' padout¨ns.syms,¨'←',¨ShapeAndType¨ns.vals
+     :EndIf
+
+     :For (var val) :In ('⎕IO' 1)('⎕ML' 1)('⎕CT' 1E¯14)('⎕USING'(0⍴⊂''))
+         :If val≢z←ns.sysvars⍎var
+             '!' padout var,'←',⍕z
+         :EndIf
+     :EndFor
+     '@' padout ns.failed
+     ⎕←''
+
+ :Else
+     execns←ns.sysvars
+     :If 0≠≢ns.rand
+         execns⍎¨ns.rand
+     :EndIf
+
+     :Select ≢ns.syms
+     :Case 0
+     :Case 1 ⋄ ⍎'execns.',(⊃ns.syms),'←⊃ns.vals'
+     :Else ⋄ ⍎'execns.(',(⍕ns.syms),')←ns.vals'
+     :EndSelect
+
+     ⍎{⎕←⍵}⍣(exec=2)⊢'execns.(x1←',ns.x1,')'
+     ⍎{⎕←⍵}⍣(exec=2)⊢'execns.(x2←',ns.x2,')'
+     ((exec=2)/1+⊃⎕LC)⎕STOP'Format'
+     ok←execns.x1{⎕CT←0 ⋄ ⍺≡⍵}execns.x2
+ :EndIf

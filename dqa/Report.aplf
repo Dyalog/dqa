@@ -1,0 +1,35 @@
+ {ok}←{exec}Report args;file;cn;nolog;ns;ix;date;tn;cns
+⍝ Report data recorded for a failed test
+
+ :Select ≢args
+ :Case 1 ⋄ (file cns)←(1⊃,args)0
+ :Case 2 ⋄ (file cns)←args
+ :Case 3 ⋄ (file cns)←(2↑args)(3⊃args)
+ :Else ⋄ ⎕SIGNAL 11
+ :EndSelect
+
+ :If 0=⎕NC'exec' ⋄ exec←0 ⋄ :EndIf
+ :If nolog←file≡0
+     ok←exec Format cns
+ :Else
+     :If 2=≢tn←file ⍝ date and qa id
+         (date ix)←file
+         date←100⊥{⍵+(⍵=0)×100|3↑⎕TS}100 100 100⊤date ⍝ Fill in year/month/day if left out
+         tn←(QALOGFOLDER,'/qa-',(,'ZI6,<->,ZI3'⎕FMT⍉⍪date ix),'.dqa')⎕FSTIE 0
+     :EndIf
+
+     :If cns≡0 ⋄ cns←1↓⍳--/2↑⎕FSIZE tn ⋄ :EndIf
+
+     ok←⍬
+     :For cn :In cns
+         :If exec=0
+             ⎕←'#',(⍕cn),' in ',(1+≢QALOGFOLDER)↓⎕FNAMES[⎕FNUMS⍳tn;]
+             ⎕←''
+         :EndIf
+         ns←⎕FREAD tn cn
+         ok,←exec Format ns
+     :EndFor
+ :EndIf
+
+ ⎕FUNTIE(2=≢file)/tn
+ ok←(⍴cns)⍴ok

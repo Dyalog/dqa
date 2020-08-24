@@ -1,0 +1,88 @@
+ {ok}←v1 MATCH v2;⎕IO;lc;fn;code;nq;np;im;names;valid;syms;sym;nc;val;shape;rank;subst;qt;id;i;seed;rand;type;deparen;dlb;m;plevel;replaced;failed;x2;x1;vals;ns;cn;sysvars;⎕ML;⎕CT;z
+ ⎕IO←⎕ML←1
+ ⎕CT←0 ⋄ ok←v1≡v2
+ :If 0=⎕NC 'OK' ⋄ OK←1 ⋄ :EndIf
+ OK∧←ok
+
+ :If {0::0 ⋄ ⍎⍵}'StopIfTestFails'
+     :If ok
+         {((⎕STOP ⍵)~⎕LC[2])⎕STOP ⍵}(2⊃⎕NSI),'.',2⊃⎕SI  ⍝ be sure the stop we would set if this test failed is removed (keeping others which the user mayn have wanted!)
+     :Else
+         (⎕LC[2]+1)⎕STOP(2⊃⎕NSI),'.',2⊃⎕SI  ⍝ set stop in calling fn in the line following the one that called us...
+     :EndIf
+ :EndIf
+
+ →ok⍴0
+
+ plevel←{⍺←1 ⋄ +\⍺×1 ¯1 0['()'⍳⍵]}
+ deparen←{(~0∊¯1↓plevel ⍵)∧')('≡2↑¯1⌽⍵:1↓¯1↓⍵ ⋄ ⍵}
+ dlb←{(+/∧\⍵=' ')↓⍵}
+
+ ⍝ Format the failing check to make it easy to repro
+
+ fn lc←2⊃¨⎕XSI ⎕LC
+ sysvars←1(86⌶)'⎕NS ''''' ⍝ Capture environment info
+ code←⌽dlb⌽(⎕CR fn)[1+lc;] ⍝ Failing line of code
+⍝ code←(4+1⍳⍨'check'⍷code)↓code
+
+ nq←0=≠\code=''''             ⍝ Not quoted
+ code←code↑⍨¯1+(nq∧code='⍝')⍳1
+ nq←(≢code)↑nq
+ names←nq∧code∊valid←'⎕∆⍙_',⎕D,∊¯1 1 ⎕C¨⊂⎕A
+ m←2</names
+ nc←⎕NC syms←(⊂'MATCH')~⍨∪{(¯1≠⎕NC ⍵)/⍵}((m⊂names)/¨m⊂code)∩¨⊂valid
+ replaced←rand←vals←0⍴⊂''
+
+ :For sym :In syms ⍝ try to replace each sym with something more useful
+     :Trap 999
+         subst←''
+         ⎕EX'val' ⋄ val←1(86⌶)sym
+         :If 2=⎕NC'val'
+             rank←≢shape←⍴val
+             :Select rank
+             :Case 0
+                 qt←((⎕DR val)∊80 82)/'''' ⋄ subst←qt,(⍕val),qt
+                 replaced,←⊂sym
+             :Case 1
+                 :If (0=1↑0⍴val)∧10≥≢val
+                     subst←(⍕val),(0=≢val)/'⍬'
+                     replaced,←⊂sym
+                 :EndIf
+             :EndSelect
+
+             :If (0=≢subst)∧('rand'≡4↑sym)∧(1↑1⊃⎕VFI 4↓sym) ⍝ 'randN'
+                 id←2⊃⎕VFI 4⊃sym
+             :AndIf (≢SEEDS)≥i←(⊃¨SEEDS)⍳id
+                 (id type shape seed)←i⊃SEEDS
+                 z←1≠≢shape
+                 rand,←⊂sym,'←',(⍕⊃seed),' RandomArray 0 ',(⍕type),' ',(z/'('),(⍕shape),z/')'
+                 replaced,←⊂sym
+             :EndIf
+             :If ~(⊂sym)∊replaced
+                 vals,←⊂val
+             :EndIf
+         :EndIf
+     :EndTrap
+     :If 0≠≢subst
+         code←(sym ⎕R subst)code
+     :EndIf
+ :EndFor
+
+ syms~←replaced
+
+ nq←0=≠\code=''''             ⍝ Not quoted
+ np←0=nq plevel code          ⍝ Not parenthesised
+ im←1⍳⍨np∧'MATCH'⍷code        ⍝ Find MATCH
+
+ failed←fn,'[',(⍕lc),']'
+ x1←deparen⌽dlb⌽dlb(im-1)↑code
+ x2←deparen⌽dlb⌽dlb{(-+/∧\' '=⌽⍵)↓⍵}(im+4)↓code
+
+ ns←⎕NS'failed' 'x1' 'x2' 'rand' 'syms' 'vals' 'sysvars'
+
+ :If 0≠QALOGTN
+     cn←ns ⎕FAPPEND QALOGTN
+     Report QALOGTN cn
+ :Else
+     Format ns
+ :EndIf
